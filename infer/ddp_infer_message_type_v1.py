@@ -17,7 +17,6 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 from datasets import load_dataset
 import pandas as pd
 
-sys.path.append("/vepfs/group04/user/chenteng/lahore/lahore_distill_student_luban")
 
 from src.data_utils import get_student_query_tamplate_text, get_tokens
 from src.train_utils import QwenStudentModel, chunked_linear
@@ -151,11 +150,8 @@ def calculate_perplexity(model, the_pormpt, tokenizer, the_answer, device, args,
 def get_logp(tokenizer, generated_ids, scores, t_the_logprob_tag, the_logprob_tag):
     logprob_tag_list = []
     all_scores = []
-    # 拿的是第一个token的所有概率
     the_score = scores[0]
-    # print("type",type(the_score))
-    # print("the score shape",the_score.shape)
-    # print("the_score list",the_score.tolist())
+
     all_scores += [(tokenizer.decode([generated_ids[0]]), generated_ids[0], the_score.tolist()[0][generated_ids[0]])]
     tmp = []
     for j in range(len(t_the_logprob_tag)):
@@ -191,7 +187,7 @@ def inference(rank, args, lock):
     base_model = AutoModelForCausalLM.from_pretrained(
         args.base_model,
         torch_dtype=torch.float16,
-        device_map=f"cuda:{global_rank}"  # 分布式模式下不自动分配设备
+        device_map=f"cuda:{global_rank}"
     )
     student_model = QwenStudentModel(base_model=base_model)
     student_model.load(model_path=args.model_path)
@@ -255,7 +251,7 @@ def inference(rank, args, lock):
                             student_query_outputs = base_model(
                                 input_ids=torch.tensor(query_tokens["input_ids"]).to(base_model.device),
                                 attention_mask=torch.tensor(query_tokens["attention_mask"]).to(base_model.device),
-                                output_hidden_states=True,  # 获取隐藏状态
+                                output_hidden_states=True,
                             )
                             student_query_embeddings = student_query_outputs.hidden_states[-1]
                             original_student_query_logits = chunked_linear(
@@ -277,12 +273,10 @@ def inference(rank, args, lock):
                             reversed_teacher_attention_mask = torch.flip(
                                 torch.tensor(query_tokens["attention_mask"]).to(base_model.device), dims=[1])
                             first_one_in_reversed = torch.argmax(reversed_teacher_attention_mask.int(), dim=1)
-                            # 转换为原序列中的索引（最后一个1的位置）
                             last_one_index = (torch.tensor(query_tokens["attention_mask"]).size(
                                 1) - 1) - first_one_in_reversed
                             # print(f"last_one_index.{last_one_index}")
 
-                            # 2. 计算answer_token_index（减2，与你的业务逻辑一致）
                             answer_token_index = last_one_index - 2
                             # print(f"answer_token_index.{answer_token_index.tolist()}")
 
@@ -291,15 +285,12 @@ def inference(rank, args, lock):
                                                              answer_token_index.tolist(), :]
                             # print(f"student_answer_logits.{student_answer_logits.shape}")
 
-                            # student_logits_mask = torch.zeros_like(student_query_logits)  # 初始化全0掩码
+                            # student_logits_mask = torch.zeros_like(student_query_logits)
 
-                            # # 生成批量索引（0到batch_size-1）
                             # batch_idx = torch.arange(1,device=student_query_logits.device)
 
-                            # # 高级索引：在每个样本的目标位置设置为1（所有词汇维度都保留）
                             # student_logits_mask[batch_idx, answer_token_index, :] = 1.0
 
-                            # # 2. 乘法操作：仅保留目标位置的logits
                             # student_answer_logits = student_query_logits * student_logits_mask
                             # print("student_answer_logits ",student_answer_logits.shape)
 
@@ -319,12 +310,6 @@ def inference(rank, args, lock):
                                 log_prob = [["A", 32, student_logits_AB.tolist()[0][0][0]]]
                             else:
                                 log_prob = [["B", 33, student_logits_AB.tolist()[0][0][1]]]
-
-                            # {"query_id": "query_2839", "doc_id": "doc_4", "label": 0, "response": "B",
-                            # "log_prob": [["B", 33, 28.095239639282227]],
-                            # "logprob_tag_list": [[["A", 32, 23.21428680419922], ["B", 33, 28.095239639282227]]], "ppl": 26.098752975463867}
-                            # print(query_tokens["input_ids"][0])
-                            # print(query_tokens["input_ids"][0][:100])
 
                             generated_text = tokenizer.decode(
                                 query_tokens["input_ids"][0][answer_token_index.tolist()[0]], skip_special_tokens=False)

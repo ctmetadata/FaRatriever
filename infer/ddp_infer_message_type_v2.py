@@ -17,7 +17,6 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, DataCollatorForLan
 from datasets import load_dataset
 import pandas as pd
 
-sys.path.append("/vepfs/group04/user/chenteng/lahore/lahore_distill_student_luban")
 
 from src.data_utils import get_student_query_tamplate_text, get_tokens, load_and_preprocess_data, \
     load_and_preprocess_data_infer

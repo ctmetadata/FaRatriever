@@ -38,7 +38,7 @@ def get_student_doc_tamplate_text(tokenizer, msg_list):
     template_result = []
     for msg in msg_list:
         template_res = tokenizer.apply_chat_template(msg,
-                                                     tokenize=False,  # 返回张量
+                                                     tokenize=False,
                                                      add_generation_prompt=True)
         doc_template = cut_tag_tail(template_res, '<|im_start|>')
         template_result.append(doc_template)
@@ -47,7 +47,7 @@ def get_student_doc_tamplate_text(tokenizer, msg_list):
 
 def get_student_doc_tamplate_text_single_line(tokenizer, msg):
     template_res = tokenizer.apply_chat_template(msg,
-                                                 tokenize=False,  # 返回张量
+                                                 tokenize=False,
                                                  add_generation_prompt=True)
     doc_template = cut_tag_tail(template_res, '<|im_start|>')
     return doc_template
@@ -59,7 +59,7 @@ def get_student_query_tamplate_text(tokenizer, examples):
     for index in range(len(examples["messages"])):
         # print("messages",examples["messages"][index])
         template_res = tokenizer.apply_chat_template(examples["messages"][index],
-                                                     tokenize=False,  # 返回张量
+                                                     tokenize=False,
                                                      add_generation_prompt=True)
         # print("template res",template_res)
         template_res = template_res.split(examples["doc_form"][index])[1]
@@ -74,7 +74,7 @@ def get_teacher_query_tamplate_text(tokenizer, path):
     for line in content:
         obj = json.loads(line)
         template_res = tokenizer.apply_chat_template(obj["messages"],
-                                                     tokenize=False,  # 返回张量
+                                                     tokenize=False,
                                                      add_generation_prompt=True)
         template_res = cut_tag_tail(template_res, '<|im_start|>')
         template_result.append(template_res)

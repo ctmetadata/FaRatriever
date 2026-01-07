@@ -48,7 +48,7 @@ start_idx=100
 end_idx=149
 
 res_file_idx=${start_idx}_${end_idx}
-root_path=/vepfs/group04/user/chenteng/my_data_dialog/retreval_data/new_format/sft_data/psyqa/eval/student
+root_path={YOUR ROOT PATH}
 
 inputfiles=""
 
@@ -67,7 +67,7 @@ echo $model_path
 echo $base_model
 echo $outputfile
 
-python -m torch.distributed.run $DISTRIBUTED_ARGS /vepfs/group04/user/chenteng/lahore/lahore_distill_student_luban/infer/ddp_infer_message_type_v2.py \
+python -m torch.distributed.run $DISTRIBUTED_ARGS infer/ddp_infer_message_type_v2.py \
                 --base_model $base_model \
                 --model_path $model_path \
                 --data_path "$inputfiles" \

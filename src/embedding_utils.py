@@ -96,7 +96,7 @@ class SplitHiddenStateDataset(Dataset):
             raise ValueError(f"cant split")
 
     def __len__(self):
-        return self.hidden_states.shape[0]  # 样本数量
+        return self.hidden_states.shape[0]
 
     def __getitem__(self, idx):
 

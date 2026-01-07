@@ -112,7 +112,7 @@ def mse_on_last_hidden(hidden_states, target):
     assert last_hidden.shape == target.shape, \
         f"Shape mismatch: {last_hidden.shape} vs {target.shape}"
     #  MSE
-    loss = nn.functional.mse_loss(last_hidden, target, reduction='mean')  # 标量
+    loss = nn.functional.mse_loss(last_hidden, target, reduction='mean')
     return loss
 
 
