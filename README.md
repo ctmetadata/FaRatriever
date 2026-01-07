@@ -1,0 +1,24 @@
+# FaRatriver
+
+
+## scripts
+
+### SFT (Supervised Fine-Tuning)
+
+
+```bash
+cd {PROJECT_PATH}
+
+BASE_MODEL={YOUR_BASE_MODEL} \
+DATA_PATH={YOUR_DATA_PATH} \
+OUTPUT_PATH={YOUR_OUTPUT_PATH} \
+BATCH_SIZE=2 \
+LR=1e-4 \
+EPOCH=5 \
+EMBEDDING_LOSS_WEIGHT=0.3 \
+LOGITS_LOSS_WEIGHT=0.4 \
+ANSWER_TOKEN_LOSS_WEIGHT=0.4 \
+OUTPUT_DIR={YOUR_DIR} \
+source {PROJECT_PATH}/run_distill_template.sh
+
+```
